@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TypeFlow - Treino de Digitação</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <header class="app-header">
+      <h1>TypeFlow</h1>
+      <p>Treino de digitação cronometrado</p>
+    </header>
+
+    <!-- Tela de configuração inicial -->
+    <section id="setupScreen" class="screen active">
+      <div class="setup-card">
+        <h2>Configure o teste</h2>
+        <div class="duration-selector">
+          <label class="duration-option">
+            <input type="radio" name="duration" value="15" checked>
+            <span class="duration-card">15 segundos</span>
+          </label>
+          <label class="duration-option">
+            <input type="radio" name="duration" value="30">
+            <span class="duration-card">30 segundos</span>
+          </label>
+          <label class="duration-option">
+            <input type="radio" name="duration" value="60">
+            <span class="duration-card">60 segundos</span>
+          </label>
+          <label class="duration-option">
+            <input type="radio" name="duration" value="120">
+            <span class="duration-card">120 segundos</span>
+          </label>
+        </div>
+
+        <button id="startBtn" class="btn-primary">Iniciar teste</button>
+
+        <div class="history-section">
+          <div class="history-header">
+            <h3>Histórico recente</h3>
+            <button id="clearHistoryBtn" class="btn-link">Limpar histórico</button>
+          </div>
+          <div id="historyList" class="history-list">
+            <p class="history-empty">Nenhum teste ainda.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tela do teste -->
+    <section id="testScreen" class="screen">
+      <div class="test-header">
+        <div class="timer" id="timer">00:00</div>
+        <div class="stats">
+          <span>PPM: <strong id="ppm">0</strong></span>
+          <span>Precisão: <strong id="accuracy">100%</strong></span>
+          <span>Erros: <strong id="errors">0</strong></span>
+        </div>
+      </div>
+
+      <div class="text-display" id="textDisplay"></div>
+
+      <textarea id="typingInput" class="typing-input" autocomplete="off" spellcheck="false" autofocus rows="4"></textarea>
+
+      <div style="margin-top: 16px; text-align: center;">
+        <button id="cancelBtn" class="btn-secondary">Cancelar teste</button>
+      </div>
+    </section>
+
+    <!-- Tela de resultados -->
+    <section id="resultsScreen" class="screen">
+      <div class="results-card">
+        <h2>Resultado do teste</h2>
+        <div class="results-grid">
+          <div class="result-item">
+            <span class="result-label">Palavras por minuto</span>
+            <span class="result-value" id="resultPpm">0</span>
+          </div>
+          <div class="result-item">
+            <span class="result-label">Precisão</span>
+            <span class="result-value" id="resultAccuracy">100%</span>
+          </div>
+          <div class="result-item">
+            <span class="result-label">Caracteres digitados</span>
+            <span class="result-value" id="resultChars">0</span>
+          </div>
+          <div class="result-item">
+            <span class="result-label">Erros</span>
+            <span class="result-value" id="resultErrors">0</span>
+          </div>
+        </div>
+
+        <div class="formula-info">
+          <p><strong>Fórmula de PPM:</strong> (caracteres corretos ÷ 5) × (60 ÷ duração em segundos)</p>
+          <p><strong>Precisão:</strong> (caracteres corretos ÷ caracteres digitados) × 100</p>
+        </div>
+
+        <div class="results-actions">
+          <button id="restartBtn" class="btn-primary">Reiniciar teste</button>
+          <button id="backToSetupBtn" class="btn-secondary">Voltar</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

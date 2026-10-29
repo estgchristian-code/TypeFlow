@@ -566,6 +566,11 @@ function loadHistory() {
 
   const history = getHistory();
 
+  // Mantém o botão de limpeza coerente com a existência de itens.
+  if (clearHistoryBtn) {
+    clearHistoryBtn.disabled = history.length === 0;
+  }
+
   if (history.length === 0) {
     const empty = document.createElement('p');
     empty.className = 'history-empty';

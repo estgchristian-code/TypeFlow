@@ -182,19 +182,63 @@ body {
   outline-offset: 2px;
 }
 
-.btn-link {
-  background: none;
-  border: none;
-  color: #2563eb;
-  cursor: pointer;
-  font-size: 0.9rem;
+.btn-clear-history {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 38px;
+  padding: 7px 11px;
+  background: #f8fafc;
+  border: 1px solid #d8dee9;
+  border-radius: var(--radius-control);
+  color: #475569;
   font-family: inherit;
-  padding: 0;
-  text-decoration: underline;
+  font-size: 0.85rem;
+  font-weight: 500;
+  line-height: 1.2;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.12s ease;
 }
 
-.btn-link:hover {
-  color: #1d4ed8;
+.btn-clear-history__icon {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.btn-clear-history:hover:not(:disabled) {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #b91c1c;
+}
+
+.btn-clear-history:active:not(:disabled) {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #991b1b;
+  transform: translateY(1px);
+}
+
+.btn-clear-history:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+.btn-clear-history:disabled {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #94a3b8;
+  cursor: not-allowed;
 }
 
 .history-section {
@@ -955,5 +999,9 @@ body {
   .halloween-scene,
   .halloween-scene * {
     animation: none !important;
+  }
+
+  .btn-clear-history {
+    transition: none;
   }
 }

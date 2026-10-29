@@ -1,42 +1,58 @@
+'use strict';
+
 // Textos em português por duração (progressivamente maiores)
 const TEXTS_BY_DURATION = {
   15: [
-    "O sol aquece a terra ao amanhecer.",
-    "A chuva traz frescor após o calor.",
-    "Um bom café alegra o início do dia.",
-    "O vento move as folhas na praça.",
-    "A paz começa com um sorriso."
+    "Sol brilha ao amanhecer.",
+    "Chuva traz frescor.",
+    "Bom café pela manhã.",
+    "Vento move as folhas.",
+    "Paz começa com sorriso."
   ],
   30: [
-    "O sol brilha forte no céu azul e aquece a terra. A vida é feita de escolhas pequenas todos os dias.",
-    "A chuva cai suave sobre as folhas e forma pequenas poças. Viajar nos ensina mais que estudar muitos livros.",
-    "A persistência é a chave para alcançar qualquer objetivo. O café pela manhã traz energia para começar o dia.",
-    "Aprender algo novo todos os dias nos torna mais inteligentes. A amizade verdadeira resiste ao tempo e à distância.",
-    "Saber ouvir é tão importante quanto saber falar. O segredo da felicidade está em apreciar o que temos."
+    "O sol brilha e aquece a terra todos os dias.",
+    "A chuva cai e refresca o ar da cidade.",
+    "Viajar ensina mais que ler muitos livros.",
+    "A amizade resiste ao tempo e à distância.",
+    "Saber ouvir é tão importante quanto falar."
   ],
   60: [
-    "Cada pessoa tem sua própria história e seu próprio caminho. Os sonhos nos movem e nos impulsionam para frente, mas é a dedicação diária que transforma esses sonhos em realidade. Mesmo diante das dificuldades, é importante manter a esperança e seguir em frente, pois cada passo conta na construção do nosso futuro.",
-    "A vida moderna nos mantém sempre ocupados com tarefas e compromissos, mas é fundamental reservar um tempo para relaxar e refletir. Passar alguns momentos em silêncio, apreciando a natureza ou conversando com pessoas queridas, pode renovar nossas energias e nos ajudar a enxergar as coisas com mais clareza.",
-    "Viajar é uma das melhores formas de aprender sobre o mundo e sobre nós mesmos. Ao conhecer novas culturas, costumes e paisagens, ampliamos nossos horizontes e desenvolvemos empatia. Essas experiências ficam gravadas na memória e enriquecem nossa visão de vida para sempre.",
-    "Aprender nunca deve ter idade, pois o conhecimento nos abre portas e nos torna mais capazes de enfrentar desafios. Seja lendo um livro, praticando uma habilidade ou trocando ideias com outras pessoas, cada nova aprendizagem nos torna mais versáteis e preparados para o futuro.",
-    "A gratidão é um hábito que pode transformar nossa perspectiva. Ao invés de focar no que falta, reconhecer as pequenas bênçãos do dia a dia nos traz mais paz e satisfação. Com o tempo, esse simples ato se torna uma fonte constante de felicidade."
+    "O sol brilha forte no céu azul e aquece a terra. A vida é feita de escolhas pequenas todos os dias, que aos poucos moldam nosso destino.",
+    "A chuva cai suave sobre as folhas e forma pequenas poças. Viajar nos ensina muito mais que estudar em livros sobre diferentes culturas.",
+    "A persistência é a chave para alcançar qualquer objetivo. O café pela manhã traz energia para começar o dia com disposição.",
+    "Aprender algo novo todos os dias nos torna mais inteligentes. A amizade verdadeira resiste ao tempo e à distância com carinho.",
+    "Saber ouvir é tão importante quanto saber falar. O segredo da felicidade está em apreciar o que já temos ao nosso redor."
   ],
   120: [
-    "A natureza nos oferece ar puro e água limpa, mas cabe a nós preservá-los. Pequenas atitudes, como economizar recursos e reduzir o lixo, já fazem diferença.\n\nCuidar do meio ambiente é um dever de todos, hoje e para as próximas gerações.",
-    "Aprender a ouvir é tão importante quanto saber falar. Um diálogo calmo pode resolver conflitos sem precisar de grandes discussões.\n\nRespeitar o outro é o primeiro passo para construir relações mais justas e duradouras.",
-    "O tempo passa rápido e raramente volta. Investir em coisas que realmente importam traz mais paz do que correr atrás de tudo ao mesmo tempo.\n\nValorizar o presente é a melhor forma de construir um futuro mais tranquilo.",
-    "Conhecer novas histórias amplia nossos horizontes e nos torna mais empáticos. Cada experiência ensina algo que fica para sempre conosco.\n\nViajar, ler ou conversar já são formas simples de crescer todos os dias.",
-    "A gratidão transforma a maneira como vemos a vida. Ao reconhecer o que temos, ficamos mais contentes com o que já conquistamos.\n\nEsse hábito simples ajuda a enfrentar desafios com mais calma e esperança."
+    "A natureza nos oferece ar puro e água limpa, mas cabe a nós preservá-los. Pequenas atitudes já fazem diferença.\n\nCuidar do meio ambiente é um dever de todos, hoje e para as próximas gerações.",
+    "Aprender a ouvir é tão importante quanto saber falar. Um diálogo calmo pode resolver conflitos.\n\nRespeitar o outro é o primeiro passo para construir relações mais justas e duradouras.",
+    "O tempo passa rápido e raramente volta. Investir em coisas que realmente importam traz mais paz.\n\nValorizar o presente é a melhor forma de construir um futuro mais tranquilo.",
+    "Conhecer novas histórias amplia nossos horizontes e nos torna mais empáticos. Cada experiência ensina algo valioso.\n\nViajar, ler ou conversar já são formas simples de crescer todos os dias.",
+    "A gratidão transforma a maneira como vemos a vida. Ao reconhecer o que temos, ficamos mais contentes.\n\nEsse hábito simples ajuda a enfrentar desafios com mais calma e esperança."
   ]
 };
+
+const STORAGE_KEY = 'typeflow_history';
+const MAX_HISTORY_ITEMS = 10;
+const MAX_HISTORY_SCAN = 100;
+const MAX_STORAGE_LENGTH = 100000;
+const MAX_METRIC_VALUE = 1000000;
+const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
+const VALID_DURATIONS = [15, 30, 60, 120];
+const DEFAULT_DURATION = 30;
 
 // Estado do teste
 let currentText = "";
 let currentInput = "";
-let testDuration = 30;
-let timeRemaining = 30;
+let testDuration = DEFAULT_DURATION;
+let timeRemaining = DEFAULT_DURATION;
 let timerInterval = null;
 let timerStarted = false;
+let testStartedAt = 0;
+let testActive = false;
+let completionTimeout = null;
+let focusTimeout = null;
+let focusAnimationFrame = null;
 let correctChars = 0;
 let incorrectChars = 0;
 let totalCharsTyped = 0;
@@ -71,16 +87,17 @@ const clearHistoryBtn = document.getElementById('clearHistoryBtn');
 function getSelectedDuration() {
   for (let i = 0; i < durationRadios.length; i++) {
     if (durationRadios[i].checked) {
-      return parseInt(durationRadios[i].value);
+      const duration = Number.parseInt(durationRadios[i].value, 10);
+      return VALID_DURATIONS.includes(duration) ? duration : DEFAULT_DURATION;
     }
   }
-  return 30;
+  return DEFAULT_DURATION;
 }
 
 // Selecionar texto aleatoriamente da categoria correspondente à duração
 function getSelectedText() {
   const duration = getSelectedDuration();
-  const texts = TEXTS_BY_DURATION[duration] || TEXTS_BY_DURATION[30];
+  const texts = TEXTS_BY_DURATION[duration] || TEXTS_BY_DURATION[DEFAULT_DURATION];
   if (!Array.isArray(texts) || texts.length === 0) {
     return "O sol brilha forte no céu azul e aquece a terra.";
   }
@@ -88,61 +105,52 @@ function getSelectedText() {
   return texts[randomIndex];
 }
 
-// Atualizar exibição do texto com cores
+// Atualizar exibição do texto com cores (sem inserir HTML não confiável)
 function updateTextDisplay() {
-  if (!currentText) return;
-  
-  let html = '';
+  if (!textDisplay) return;
+
+  const fragment = document.createDocumentFragment();
+  if (!currentText) {
+    textDisplay.replaceChildren();
+    return;
+  }
+
   for (let i = 0; i < currentText.length; i++) {
     const char = currentText[i];
-    const inputChar = currentInput[i];
-    
-    if (char === '\n') {
-      if (i < currentInput.length && inputChar === '\n') {
-        html += '<br>';
-      } else if (i === currentInput.length) {
-        html += '<br>';
-      } else {
-        html += '<br>';
-      }
-      continue;
-    }
+
     if (char === '\r') {
       continue;
     }
-    
-    if (i < currentInput.length) {
-      if (inputChar === char) {
-        html += `<span class="char correct">${escapeHtml(char)}</span>`;
-      } else {
-        html += `<span class="char incorrect">${escapeHtml(char)}</span>`;
-      }
-    } else if (i === currentInput.length) {
-      html += `<span class="char current">${escapeHtml(char)}</span>`;
-    } else {
-      html += `<span class="char untyped">${escapeHtml(char)}</span>`;
-    }
-  }
-  
-  textDisplay.innerHTML = html;
-}
 
-// Escapar HTML para segurança
-function escapeHtml(text) {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
+    if (char === '\n') {
+      fragment.appendChild(document.createElement('br'));
+      continue;
+    }
+
+    let className = 'char untyped';
+    if (i < currentInput.length) {
+      className = currentInput[i] === char ? 'char correct' : 'char incorrect';
+    } else if (i === currentInput.length) {
+      className = 'char current';
+    }
+
+    const span = document.createElement('span');
+    span.className = className;
+    span.textContent = char;
+    fragment.appendChild(span);
+  }
+
+  textDisplay.replaceChildren(fragment);
 }
 
 // Calcular PPM
 // Fórmula: (caracteres corretos ÷ 5) × (60 ÷ duração em segundos)
 // Ou seja: caracteres corretos × 60 / (5 × duração)
 function calculatePpm() {
-  if (testDuration === 0) return 0;
-  const correct = correctChars;
-  const seconds = testDuration - timeRemaining;
-  if (seconds === 0) return 0;
-  return Math.round((correct * 60) / (5 * seconds));
+  if (testDuration <= 0) return 0;
+  // Mínimo de 1 segundo evita PPM zero quando o texto termina antes do 1º tique.
+  const seconds = Math.max(1, testDuration - timeRemaining);
+  return Math.round((correctChars * 60) / (5 * seconds));
 }
 
 // Calcular precisão
@@ -155,265 +163,493 @@ function calculateAccuracy() {
 
 // Atualizar estatísticas em tempo real
 function updateStats() {
-  const ppm = calculatePpm();
-  const accuracy = calculateAccuracy();
-  const errors = incorrectChars;
-  
-  ppmEl.textContent = ppm;
-  accuracyEl.textContent = accuracy + '%';
-  errorsEl.textContent = errors;
+  if (ppmEl) ppmEl.textContent = String(calculatePpm());
+  if (accuracyEl) accuracyEl.textContent = calculateAccuracy() + '%';
+  if (errorsEl) errorsEl.textContent = String(incorrectChars);
+}
+
+// Atualizar cronômetro exibido
+function updateTimerDisplay() {
+  if (!timerEl) return;
+  const minutes = Math.floor(timeRemaining / 60);
+  const seconds = timeRemaining % 60;
+  timerEl.textContent = String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+}
+
+// Limpar apenas o intervalo do cronômetro
+function stopTimer() {
+  if (timerInterval !== null) {
+    window.clearInterval(timerInterval);
+    timerInterval = null;
+  }
+  testStartedAt = 0;
+}
+
+// Limpar finalização agendada ao completar o texto
+function clearCompletionTimeout() {
+  if (completionTimeout !== null) {
+    window.clearTimeout(completionTimeout);
+    completionTimeout = null;
+  }
+}
+
+// Limpar o foco automático agendado
+function clearFocusScheduling() {
+  if (focusTimeout !== null) {
+    window.clearTimeout(focusTimeout);
+    focusTimeout = null;
+  }
+  if (focusAnimationFrame !== null) {
+    if (typeof window.cancelAnimationFrame === 'function') {
+      window.cancelAnimationFrame(focusAnimationFrame);
+    }
+    focusAnimationFrame = null;
+  }
+}
+
+// Relógio monotônico para o cronômetro não sofrer com ajustes do relógio do sistema.
+function getNow() {
+  if (window.performance && typeof window.performance.now === 'function') {
+    return window.performance.now();
+  }
+  return Date.now();
 }
 
 // Iniciar cronômetro
 function startTimer() {
-  if (timerStarted) return;
+  if (timerStarted || !testActive) return;
   timerStarted = true;
-  
-  timerInterval = setInterval(() => {
-    timeRemaining--;
-    
-    const minutes = Math.floor(timeRemaining / 60);
-    const seconds = timeRemaining % 60;
-    timerEl.textContent = String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
-    
+  testStartedAt = getNow();
+
+  timerInterval = window.setInterval(() => {
+    if (!testActive) {
+      stopTimer();
+      return;
+    }
+
+    // Usa o relógio real em vez de contar tiques: abas em segundo plano
+    // podem ter os intervalos atrasados sem prolongar o teste.
+    const elapsedSeconds = Math.floor(
+      Math.max(0, getNow() - testStartedAt) / 1000
+    );
+    timeRemaining = Math.max(0, testDuration - elapsedSeconds);
+    updateTimerDisplay();
     updateStats();
-    
-    if (timeRemaining <= 0) {
+
+    if (timeRemaining === 0) {
       endTest();
     }
   }, 1000);
 }
 
-// Finalizar teste (concluído)
+// Agendar finalização após o texto ser totalmente digitado
+function scheduleCompletion() {
+  // Só agenda uma vez; digitar além do texto não deve adiar o fim do teste.
+  if (completionTimeout !== null) return;
+
+  completionTimeout = window.setTimeout(() => {
+    completionTimeout = null;
+    if (!testActive) return;
+    if (currentText.length > 0 && currentInput.length >= currentText.length) {
+      endTest();
+    }
+  }, 100);
+}
+
+// Calcular e persistir o resultado, exibindo a tela final
 function endTest() {
-  if (timerInterval) {
-    clearInterval(timerInterval);
-    timerInterval = null;
-  }
-  
+  // Evita finalização duplicada (fim do tempo + texto concluído)
+  if (!testActive) return;
+
+  testActive = false;
+  timerStarted = false;
+  stopTimer();
+  clearCompletionTimeout();
+  clearFocusScheduling();
+
   if (typingInput) {
     typingInput.disabled = true;
   }
-  
+
   const ppm = calculatePpm();
   const accuracy = calculateAccuracy();
   const errors = incorrectChars;
   const charsTyped = totalCharsTyped;
-  
-  resultPpm.textContent = ppm;
-  resultAccuracy.textContent = accuracy + '%';
-  resultChars.textContent = charsTyped;
-  resultErrors.textContent = errors;
-  
+
+  if (resultPpm) resultPpm.textContent = String(ppm);
+  if (resultAccuracy) resultAccuracy.textContent = accuracy + '%';
+  if (resultChars) resultChars.textContent = String(charsTyped);
+  if (resultErrors) resultErrors.textContent = String(errors);
+
+  showScreen(resultsScreen);
   saveToHistory(ppm, accuracy, charsTyped, errors);
-  
-  testScreen.classList.remove('active');
-  resultsScreen.classList.add('active');
 }
 
-// Cancelar teste (não salva histórico)
-function cancelTest() {
-  if (timerInterval) {
-    clearInterval(timerInterval);
-    timerInterval = null;
-  }
-  
+// Resetar o estado do teste e limpar todos os temporizadores
+function resetTestState() {
+  stopTimer();
+  clearCompletionTimeout();
+  clearFocusScheduling();
+
+  testActive = false;
   timerStarted = false;
-  if (typingInput) {
-    typingInput.disabled = true;
-    typingInput.value = '';
-  }
+  currentText = '';
   currentInput = '';
   correctChars = 0;
   incorrectChars = 0;
   totalCharsTyped = 0;
-  currentText = '';
-  
-  testScreen.classList.remove('active');
-  setupScreen.classList.add('active');
-  resultsScreen.classList.remove('active');
-  
+  timeRemaining = testDuration;
+
+  if (typingInput) {
+    typingInput.disabled = true;
+    typingInput.value = '';
+  }
+  if (textDisplay) {
+    textDisplay.replaceChildren();
+  }
+}
+
+// Mostrar somente a tela informada
+function showScreen(screen) {
+  [setupScreen, testScreen, resultsScreen].forEach((element) => {
+    if (element) {
+      element.classList.toggle('active', element === screen);
+    }
+  });
+}
+
+// Focar o campo de digitação após a troca de tela
+function focusTypingInput() {
+  if (!typingInput) return;
+  try {
+    typingInput.focus();
+    if (typeof typingInput.setSelectionRange === 'function') {
+      typingInput.setSelectionRange(0, 0);
+    }
+  } catch (e) {
+    // O navegador pode recusar o foco; o teste continua funcional.
+  }
+}
+
+function scheduleTypingFocus() {
+  clearFocusScheduling();
+
+  const focusIfActive = () => {
+    focusTimeout = null;
+    focusAnimationFrame = null;
+    if (testActive) {
+      focusTypingInput();
+    }
+  };
+
+  // Uma única tentativa: rAF quando disponível, com timeout como fallback.
+  if (typeof window.requestAnimationFrame === 'function') {
+    focusAnimationFrame = window.requestAnimationFrame(focusIfActive);
+  } else {
+    focusTimeout = window.setTimeout(focusIfActive, 0);
+  }
+}
+
+// Iniciar um novo teste
+function startTest() {
+  resetTestState();
+
+  testActive = true;
+  timerStarted = false;
+  testDuration = getSelectedDuration();
+  timeRemaining = testDuration;
+  currentText = getSelectedText();
+  currentInput = '';
+  correctChars = 0;
+  incorrectChars = 0;
+  totalCharsTyped = 0;
+
+  updateTimerDisplay();
+  if (ppmEl) ppmEl.textContent = '0';
+  if (accuracyEl) accuracyEl.textContent = '100%';
+  if (errorsEl) errorsEl.textContent = '0';
+
+  updateTextDisplay();
+
+  if (typingInput) {
+    typingInput.disabled = false;
+    typingInput.value = '';
+    typingInput.blur();
+  }
+
+  showScreen(testScreen);
+  scheduleTypingFocus();
+}
+
+// Cancelar teste (não salva histórico)
+function cancelTest() {
+  returnToSetup();
+}
+
+// Voltar para a configuração, descartando o teste atual
+function returnToSetup() {
+  resetTestState();
+  showScreen(setupScreen);
   loadHistory();
+}
+
+// Executa uma operação no localStorage sem deixar falhas de acesso
+// (modo privado, bloqueio do navegador, cota etc.) quebrarem a aplicação.
+function withStorage(operation, fallback) {
+  try {
+    const storage = window.localStorage;
+    if (!storage) return fallback;
+    return operation(storage);
+  } catch (e) {
+    return fallback;
+  }
+}
+
+function readStorage(key) {
+  return withStorage((storage) => storage.getItem(key), null);
+}
+
+function writeStorage(key, value) {
+  return withStorage((storage) => {
+    storage.setItem(key, value);
+    return true;
+  }, false);
+}
+
+function removeStorage(key) {
+  return withStorage((storage) => {
+    storage.removeItem(key);
+    return true;
+  }, false);
+}
+
+// Validar e normalizar um resultado antes de salvar ou exibir
+function createHistoryEntry(ppm, accuracy, charsTyped, errors, duration, date) {
+  if (!Number.isFinite(ppm) || !Number.isFinite(accuracy) ||
+      !Number.isFinite(charsTyped) || !Number.isFinite(errors)) {
+    return null;
+  }
+  if (!VALID_DURATIONS.includes(duration)) return null;
+  if (ppm < 0 || ppm > MAX_METRIC_VALUE) return null;
+  if (accuracy < 0 || accuracy > 100) return null;
+  if (!Number.isInteger(charsTyped) || charsTyped < 0 || charsTyped > MAX_METRIC_VALUE) return null;
+  if (!Number.isInteger(errors) || errors < 0 || errors > charsTyped) return null;
+  if (!(date instanceof Date) || Number.isNaN(date.getTime())) return null;
+
+  return {
+    ppm: Math.round(ppm),
+    accuracy: Math.round(accuracy * 10) / 10,
+    charactersTyped: charsTyped,
+    errors: errors,
+    duration: duration,
+    date: date.toISOString()
+  };
+}
+
+// Converter um item desconhecido do localStorage em um resultado válido
+function normalizeHistoryEntry(raw) {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
+  if (typeof raw.ppm !== 'number' ||
+      typeof raw.accuracy !== 'number' ||
+      typeof raw.charactersTyped !== 'number' ||
+      typeof raw.errors !== 'number' ||
+      typeof raw.duration !== 'number' ||
+      typeof raw.date !== 'string' ||
+      !ISO_DATE_PATTERN.test(raw.date)) {
+    return null;
+  }
+
+  return createHistoryEntry(
+    raw.ppm,
+    raw.accuracy,
+    raw.charactersTyped,
+    raw.errors,
+    raw.duration,
+    new Date(raw.date)
+  );
 }
 
 // Salvar no histórico (últimos 10)
 function saveToHistory(ppm, accuracy, charsTyped, errors) {
-  try {
-    const history = getHistory();
-    const result = {
-      ppm: ppm,
-      accuracy: accuracy,
-      charactersTyped: charsTyped,
-      errors: errors,
-      duration: testDuration,
-      date: new Date().toISOString()
-    };
-    history.unshift(result);
-    if (history.length > 10) {
-      history.splice(10);
-    }
-    localStorage.setItem('typeflow_history', JSON.stringify(history));
+  const entry = createHistoryEntry(
+    ppm,
+    accuracy,
+    charsTyped,
+    errors,
+    testDuration,
+    new Date()
+  );
+  if (!entry) return;
+
+  const history = getHistory();
+  history.unshift(entry);
+  const serialized = JSON.stringify(history.slice(0, MAX_HISTORY_ITEMS));
+  if (writeStorage(STORAGE_KEY, serialized)) {
     loadHistory();
-  } catch (e) {
-    // Ignorar erros de localStorage
   }
 }
 
-// Obter histórico
+// Obter e validar o histórico armazenado
 function getHistory() {
-  try {
-    const data = localStorage.getItem('typeflow_history');
-    if (!data) return [];
-    return JSON.parse(data);
-  } catch (e) {
+  const stored = readStorage(STORAGE_KEY);
+  if (stored === null || stored === '') return [];
+
+  if (stored.length > MAX_STORAGE_LENGTH) {
+    removeStorage(STORAGE_KEY);
     return [];
   }
+
+  let parsed;
+  try {
+    parsed = JSON.parse(stored);
+  } catch (e) {
+    // Descarta conteúdo corrompido para não ser reprocessado a cada leitura.
+    removeStorage(STORAGE_KEY);
+    return [];
+  }
+
+  if (!Array.isArray(parsed)) {
+    removeStorage(STORAGE_KEY);
+    return [];
+  }
+
+  const history = [];
+  const scanLimit = Math.min(parsed.length, MAX_HISTORY_SCAN);
+  for (let i = 0; i < scanLimit && history.length < MAX_HISTORY_ITEMS; i++) {
+    const entry = normalizeHistoryEntry(parsed[i]);
+    if (entry) {
+      history.push(entry);
+    }
+  }
+  return history;
+}
+
+function formatHistoryDate(isoDate) {
+  const date = new Date(isoDate);
+  if (Number.isNaN(date.getTime())) return '';
+
+  return date.toLocaleDateString('pt-BR') + ' ' +
+    date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+}
+
+// Criar um item do histórico com APIs seguras (textContent)
+function createHistoryItem(item) {
+  const itemElement = document.createElement('div');
+  itemElement.className = 'history-item';
+
+  const statsElement = document.createElement('span');
+
+  const ppmValue = document.createElement('strong');
+  ppmValue.textContent = String(item.ppm);
+
+  const accuracyValue = document.createElement('strong');
+  accuracyValue.textContent = item.accuracy + '%';
+
+  statsElement.appendChild(ppmValue);
+  statsElement.appendChild(document.createTextNode(' PPM | '));
+  statsElement.appendChild(accuracyValue);
+  statsElement.appendChild(document.createTextNode(
+    ' precisão | ' + item.charactersTyped + ' chars'
+  ));
+
+  const dateElement = document.createElement('span');
+  dateElement.textContent = formatHistoryDate(item.date);
+
+  itemElement.appendChild(statsElement);
+  itemElement.appendChild(dateElement);
+  return itemElement;
 }
 
 // Carregar histórico na tela
 function loadHistory() {
-  const history = getHistory();
-  
   if (!historyList) return;
-  
+
+  const history = getHistory();
+
   if (history.length === 0) {
-    historyList.innerHTML = '<p class="history-empty">Nenhum teste ainda.</p>';
+    const empty = document.createElement('p');
+    empty.className = 'history-empty';
+    empty.textContent = 'Nenhum teste ainda.';
+    historyList.replaceChildren(empty);
     return;
   }
-  
-  let html = '';
-  history.forEach(item => {
-    const date = new Date(item.date);
-    const dateStr = date.toLocaleDateString('pt-BR') + ' ' + date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-    html += `
-      <div class="history-item">
-        <span><strong>${item.ppm}</strong> PPM | <strong>${item.accuracy}%</strong> precisão | ${item.charactersTyped} chars</span>
-        <span>${dateStr}</span>
-      </div>
-    `;
+
+  const fragment = document.createDocumentFragment();
+  history.forEach((item) => {
+    fragment.appendChild(createHistoryItem(item));
   });
-  historyList.innerHTML = html;
+  historyList.replaceChildren(fragment);
 }
 
 // Limpar histórico
 function clearHistory() {
-  try {
-    localStorage.removeItem('typeflow_history');
-    loadHistory();
-  } catch (e) {
-    // Ignorar erros
+  removeStorage(STORAGE_KEY);
+  loadHistory();
+}
+
+// Processar a digitação e atualizar os indicadores
+function handleTypingInput(value) {
+  if (!testActive) return;
+
+  if (!timerStarted && value.length > 0) {
+    startTimer();
+  }
+
+  currentInput = value;
+  totalCharsTyped = value.length;
+
+  let correct = 0;
+  let incorrect = 0;
+  for (let i = 0; i < value.length; i++) {
+    if (i < currentText.length && value[i] === currentText[i]) {
+      correct++;
+    } else {
+      incorrect++;
+    }
+  }
+  correctChars = correct;
+  incorrectChars = incorrect;
+
+  updateTextDisplay();
+  updateStats();
+
+  if (currentText.length > 0 && currentInput.length >= currentText.length) {
+    scheduleCompletion();
+  } else {
+    clearCompletionTimeout();
   }
 }
 
 // Event Listeners
 if (startBtn) {
-  startBtn.addEventListener('click', () => {
-    testDuration = getSelectedDuration();
-    timeRemaining = testDuration;
-    currentText = getSelectedText();
-    currentInput = '';
-    correctChars = 0;
-    incorrectChars = 0;
-    totalCharsTyped = 0;
-    timerStarted = false;
-    if (timerInterval) {
-      clearInterval(timerInterval);
-      timerInterval = null;
-    }
-    
-    const minutes = Math.floor(timeRemaining / 60);
-    const seconds = timeRemaining % 60;
-    if (timerEl) timerEl.textContent = String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
-    
-    if (ppmEl) ppmEl.textContent = '0';
-    if (accuracyEl) accuracyEl.textContent = '100%';
-    if (errorsEl) errorsEl.textContent = '0';
-    
-    updateTextDisplay();
-    
-    if (typingInput) {
-      typingInput.disabled = false;
-      typingInput.value = '';
-      typingInput.focus();
-    }
-    
-    setupScreen.classList.remove('active');
-    testScreen.classList.add('active');
-    resultsScreen.classList.remove('active');
-  });
+  startBtn.addEventListener('click', startTest);
 }
 
-// Botão cancelar
 if (cancelBtn) {
-  cancelBtn.addEventListener('click', () => {
-    cancelTest();
-  });
+  cancelBtn.addEventListener('click', cancelTest);
 }
 
-// Input de digitação
 if (typingInput) {
-  typingInput.addEventListener('input', (e) => {
-    if (!timerStarted && e.target.value.length > 0) {
-      startTimer();
-    }
-    
-    currentInput = e.target.value;
-    
-    totalCharsTyped = currentInput.length;
-    
-    correctChars = 0;
-    incorrectChars = 0;
-    for (let i = 0; i < currentInput.length; i++) {
-      if (i < currentText.length && currentInput[i] === currentText[i]) {
-        correctChars++;
-      } else if (i < currentText.length) {
-        incorrectChars++;
-      } else {
-        incorrectChars++;
-      }
-    }
-    
-    updateTextDisplay();
-    updateStats();
-    
-    if (currentInput.length >= currentText.length && currentText.length > 0) {
-      setTimeout(() => {
-        endTest();
-      }, 100);
-    }
+  typingInput.addEventListener('input', (event) => {
+    handleTypingInput(event.target.value);
+  });
+
+  // Prevenir colagem
+  typingInput.addEventListener('paste', (event) => {
+    event.preventDefault();
   });
 }
 
-// Prevenir colagem
-if (typingInput) {
-  typingInput.addEventListener('paste', (e) => {
-    e.preventDefault();
-  });
-}
-
-// Botão reiniciar
 if (restartBtn) {
-  restartBtn.addEventListener('click', () => {
-    resultsScreen.classList.remove('active');
-    setupScreen.classList.add('active');
-    loadHistory();
-  });
+  restartBtn.addEventListener('click', returnToSetup);
 }
 
-// Botão voltar
 if (backToSetupBtn) {
-  backToSetupBtn.addEventListener('click', () => {
-    resultsScreen.classList.remove('active');
-    setupScreen.classList.add('active');
-    loadHistory();
-  });
+  backToSetupBtn.addEventListener('click', returnToSetup);
 }
 
-// Botão limpar histórico
 if (clearHistoryBtn) {
-  clearHistoryBtn.addEventListener('click', () => {
-    clearHistory();
-  });
+  clearHistoryBtn.addEventListener('click', clearHistory);
 }
 
 // Inicializar

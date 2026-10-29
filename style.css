@@ -304,6 +304,11 @@ body {
   border-color: #2563eb;
 }
 
+.test-actions {
+  margin-top: 16px;
+  text-align: center;
+}
+
 .results-card {
   background: #ffffff;
   padding: 40px;

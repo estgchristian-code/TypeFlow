@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
   <title>TypeFlow - Treino de Digitação</title>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -63,9 +65,9 @@
 
       <div class="text-display" id="textDisplay"></div>
 
-      <textarea id="typingInput" class="typing-input" autocomplete="off" spellcheck="false" autofocus rows="4"></textarea>
+      <textarea id="typingInput" class="typing-input" autocomplete="off" spellcheck="false" autofocus rows="4" aria-label="Digite o texto exibido"></textarea>
 
-      <div style="margin-top: 16px; text-align: center;">
+      <div class="test-actions">
         <button id="cancelBtn" class="btn-secondary">Cancelar teste</button>
       </div>
     </section>
